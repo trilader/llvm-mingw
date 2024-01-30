@@ -27,10 +27,11 @@ if [ "$2" = "nativeonly" ]; then
     NATIVEONLY=1
 fi
 
-time docker build -f Dockerfile . -t mstorsjo/llvm-mingw:latest -t mstorsjo/llvm-mingw:$TAG
+# Note: Skip the linux->windows cross-compiler which we don't need
+#time docker build -f Dockerfile . -t mstorsjo/llvm-mingw:latest -t mstorsjo/llvm-mingw:$TAG --build-arg TOOLCHAIN_ARCHS="x86_64"
 
-DISTRO=ubuntu-22.04-$(uname -m)
-docker run --rm mstorsjo/llvm-mingw:latest sh -c "cd /opt && mv llvm-mingw llvm-mingw-$TAG-ucrt-$DISTRO && tar -Jcvf - --format=ustar --numeric-owner --owner=0 --group=0 llvm-mingw-$TAG-ucrt-$DISTRO" > llvm-mingw-$TAG-ucrt-$DISTRO.tar.xz
+#DISTRO=ubuntu-22.04-$(uname -m)
+#docker run --rm mstorsjo/llvm-mingw:latest sh -c "cd /opt && mv llvm-mingw llvm-mingw-$TAG-ucrt-$DISTRO && tar -Jcvf - --format=ustar --numeric-owner --owner=0 --group=0 llvm-mingw-$TAG-ucrt-$DISTRO" > llvm-mingw-$TAG-ucrt-$DISTRO.tar.xz
 
 if [ -n "$NATIVEONLY" ]; then
     exit 0
@@ -52,6 +53,8 @@ for arch in i686 x86_64 armv7 aarch64; do
     time docker build -f Dockerfile.cross --build-arg BASE=mstorsjo/llvm-mingw:dev --build-arg CROSS_ARCH=$arch --build-arg TAG=$TAG-ucrt- --build-arg WITH_PYTHON=1 -t $temp .
     ./extract-docker.sh $temp /llvm-mingw-$TAG-ucrt-$arch.zip
 done
+
+exit 0
 
 msvcrt_image=llvm-mingw-msvcrt-$(uuidgen)
 temp_images="$temp_images $msvcrt_image"
