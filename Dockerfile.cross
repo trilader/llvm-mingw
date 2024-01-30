@@ -31,17 +31,20 @@ ENV CROSS_TOOLCHAIN_PREFIX=/opt/llvm-mingw-$CROSS_ARCH
 
 ENV HOST=$CROSS_ARCH-w64-mingw32
 
+ARG PYTHON_SUFFIX
+COPY python-suffix.patch .
+
 RUN if [ -n "$WITH_PYTHON" ]; then \
-        ./build-python.sh $CROSS_TOOLCHAIN_PREFIX/python --host=$HOST && \
+        ./build-python.sh $CROSS_TOOLCHAIN_PREFIX/python$PYTHON_SUFFIX --host=$HOST --python-suffix="$PYTHON_SUFFIX" && \
         mkdir -p $CROSS_TOOLCHAIN_PREFIX/bin && \
-        cp $CROSS_TOOLCHAIN_PREFIX/python/bin/*.dll $CROSS_TOOLCHAIN_PREFIX/bin; \
+        cp $CROSS_TOOLCHAIN_PREFIX/python$PYTHON_SUFFIX/bin/*.dll $CROSS_TOOLCHAIN_PREFIX/bin; \
     fi
 
 ARG FULL_LLVM
 
 COPY build-llvm.sh .
 RUN if [ -n "$WITH_PYTHON" ]; then ARG="--with-python"; fi && \
-    ./build-llvm.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST $ARG
+    ./build-llvm.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST --python-suffix="$PYTHON_SUFFIX" $ARG
 
 COPY build-lldb-mi.sh .
 RUN ./build-lldb-mi.sh $CROSS_TOOLCHAIN_PREFIX --host=$HOST

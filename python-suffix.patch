@@ -1,0 +1,74 @@
+diff --git a/Lib/ctypes/__init__.py b/Lib/ctypes/__init__.py
+index 76d583bbe3..66a2acf213 100644
+--- a/Lib/ctypes/__init__.py
++++ b/Lib/ctypes/__init__.py
+@@ -459,11 +459,11 @@ def LoadLibrary(self, name):
+ pydll = LibraryLoader(PyDLL)
+ 
+ if _os.name == "nt" and _sys.version.find('GCC') >= 0:
+-    pythonapi = PyDLL("libpython%d.%d%s.dll" % (_sys.version_info[:2] + (_sys.abiflags,)), None)
++    pythonapi = PyDLL("libpython$PYSUFFIX%d.%d%s.dll" % (_sys.version_info[:2] + (_sys.abiflags,)), None)
+ elif _os.name == "nt":
+     pythonapi = PyDLL("python dll", None, _sys.dllhandle)
+ elif _sys.platform == "cygwin":
+-    pythonapi = PyDLL("libpython%d.%d.dll" % _sys.version_info[:2])
++    pythonapi = PyDLL("libpython$PYSUFFIX%d.%d.dll" % _sys.version_info[:2])
+ else:
+     pythonapi = PyDLL(None)
+ 
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index 32433e67e3..ecc4a8ad26 100644
+--- a/Makefile.pre.in
++++ b/Makefile.pre.in
+@@ -278,8 +278,8 @@ LIBRARY_DEPS=	@LIBRARY_DEPS@
+ LINK_PYTHON_DEPS=@LINK_PYTHON_DEPS@
+ PY_ENABLE_SHARED=	@PY_ENABLE_SHARED@
+ STATIC_LIBPYTHON=	@STATIC_LIBPYTHON@
+-ABI3DLLLIBRARY= libpython3.dll
+-ABI3LDLIBRARY=  libpython3.dll.a
++ABI3DLLLIBRARY= libpython$PYSUFFIX3.dll
++ABI3LDLIBRARY=  libpython$PYSUFFIX3.dll.a
+ 
+ 
+ LIBS=		@LIBS@
+@@ -851,7 +851,7 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
+ 
+ # This rule builds the Cygwin Python DLL and import library if configured
+ # for a shared core library; otherwise, this rule is a noop.
+-$(DLLLIBRARY) libpython$(LDVERSION).dll.a: $(LIBRARY_OBJS) python_nt.o
++$(DLLLIBRARY) libpython$PYSUFFIX$(LDVERSION).dll.a: $(LIBRARY_OBJS) python_nt.o
+ 	if test -n "$(DLLLIBRARY)"; then \
+ 		$(LDSHARED) -Wl,--out-implib=$@ -o $(DLLLIBRARY) $^ \
+ 			$(LIBS) $(LDFLAGS_NODIST) $(MODLIBS) $(SYSLIBS) python_nt.o; \
+diff --git a/Python/dynload_win.c b/Python/dynload_win.c
+index cd15e4ac81..ab8d0848fe 100644
+--- a/Python/dynload_win.c
++++ b/Python/dynload_win.c
+@@ -58,8 +58,8 @@ const char *_PyImport_DynLoadFiletab[] = {
+ 
+ #ifdef __MINGW32__
+ #define DLL_PREFIX "libpython"
+-#define DLL_PREFIX_LEN 9
+-#define DLL_NAME_FORMAT "libpython%d.%d"
++#define DLL_PREFIX_LEN $PREFIXLEN
++#define DLL_NAME_FORMAT "libpython$PYSUFFIX%d.%d"
+ #else
+ #define DLL_PREFIX "python"
+ #define DLL_PREFIX_LEN 6
+diff --git a/configure.ac b/configure.ac
+index bb5995b744..3371ecced0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1579,9 +1579,9 @@ if test $enable_shared = "yes"; then
+           DLLLIBRARY='libpython$(LDVERSION).dll'
+           ;;
+     MINGW*)
+-          LDLIBRARY='libpython$(LDVERSION).dll.a'
+-          DLLLIBRARY='libpython$(LDVERSION).dll'
+-          BLDLIBRARY='-L. -lpython$(LDVERSION)'
++          LDLIBRARY='libpython$PYSUFFIX$(LDVERSION).dll.a'
++          DLLLIBRARY='libpython$PYSUFFIX$(LDVERSION).dll'
++          BLDLIBRARY='-L. -lpython$PYSUFFIX$(LDVERSION)'
+           ;;
+     SunOS*)
+ 	  LDLIBRARY='libpython$(LDVERSION).so'

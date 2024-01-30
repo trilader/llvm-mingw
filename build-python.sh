@@ -23,12 +23,16 @@ set -e
 unset HOST
 
 BUILDDIR=build
+PYTHON_SUFFIX=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
     --host=*)
         HOST="${1#*=}"
         BUILDDIR=$BUILDDIR-$HOST
+        ;;
+    --python-suffix=*)
+        PYTHON_SUFFIX="${1#*=}"
         ;;
     *)
         PREFIX="$1"
@@ -120,6 +124,10 @@ if [ -n "$SYNC" ] || [ -n "$CHECKOUT_PYTHON" ]; then
     [ -z "$SYNC" ] || git fetch
     git reset --hard
     git checkout $PYTHON_VERSION_MINGW
+    if [ -n "$PYTHON_SUFFIX" ]; then
+        export PREFIXLEN=$(echo -n "libpython$PYTHON_SUFFIX" | wc -c)
+        sed ../python-suffix.patch -e "s/\$PYSUFFIX/$PYTHON_SUFFIX/;s/\$PREFIXLEN/$PREFIXLEN/" | patch -p1
+    fi
     autoreconf -vfi
     cd ..
 fi

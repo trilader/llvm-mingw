@@ -24,6 +24,7 @@ LINK_DYLIB=ON
 ASSERTSSUFFIX=""
 LLDB=ON
 CLANG_TOOLS_EXTRA=ON
+PYTHON_SUFFIX=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -58,6 +59,9 @@ while [ $# -gt 0 ]; do
         ;;
     --with-python)
         WITH_PYTHON=1
+        ;;
+    --python-suffix=*)
+        PYTHON_SUFFIX="${1#*=}"
         ;;
     --disable-lldb)
         unset LLDB
@@ -201,13 +205,13 @@ if [ -n "$HOST" ]; then
     if [ -n "$WITH_PYTHON" ] && [ -n "$TARGET_WINDOWS" ]; then
         # The python3-config script requires executing with bash. It outputs
         # an extra trailing space, which the extra 'echo' layer gets rid of.
-        EXT_SUFFIX="$(echo $(bash $PREFIX/python/bin/python3-config --extension-suffix))"
-        PYTHON_RELATIVE_PATH="$(cd "$PREFIX" && echo python/lib/python*/site-packages)"
-        PYTHON_INCLUDE_DIR="$(echo $PREFIX/python/include/python*)"
-        PYTHON_LIB="$(echo $PREFIX/python/lib/libpython3.*.dll.a)"
+        EXT_SUFFIX="$(echo $(bash $PREFIX/python{PYTHON_SUFFIX}/bin/python3-config --extension-suffix))"
+        PYTHON_RELATIVE_PATH="$(cd "$PREFIX" && echo python{PYTHON_SUFFIX}/lib/python*/site-packages)"
+        PYTHON_INCLUDE_DIR="$(echo $PREFIX/python{PYTHON_SUFFIX}/include/python*)"
+        PYTHON_LIB="$(echo $PREFIX/python{PYTHON_SUFFIX}/lib/libpython3.*.dll.a)"
         CMAKEFLAGS="$CMAKEFLAGS -DLLDB_ENABLE_PYTHON=ON"
-        CMAKEFLAGS="$CMAKEFLAGS -DPYTHON_HOME=$PREFIX/python"
-        CMAKEFLAGS="$CMAKEFLAGS -DLLDB_PYTHON_HOME=../python"
+        CMAKEFLAGS="$CMAKEFLAGS -DPYTHON_HOME=$PREFIX/python${PYTHON_SUFFIX}"
+        CMAKEFLAGS="$CMAKEFLAGS -DLLDB_PYTHON_HOME=../python${PYTHON_SUFFIX}"
         # Relative to the lldb install root
         CMAKEFLAGS="$CMAKEFLAGS -DLLDB_PYTHON_RELATIVE_PATH=$PYTHON_RELATIVE_PATH"
         # Relative to LLDB_PYTHON_HOME
