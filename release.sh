@@ -37,7 +37,7 @@ if [ -n "$NATIVEONLY" ]; then
     exit 0
 fi
 
-time docker build -f Dockerfile.dev . -t mstorsjo/llvm-mingw:dev -t mstorsjo/llvm-mingw:dev-$TAG --build-arg TOOLCHAIN_ARCHS="x86_64"
+time docker build -f Dockerfile.dev . -t mstorsjo/llvm-mingw:dev -t mstorsjo/llvm-mingw:dev-$TAG --build-arg TOOLCHAIN_ARCHS="x86_64" --build-arg FULL_LLVM=1
 
 cleanup() {
     for i in $temp_images; do
@@ -50,7 +50,7 @@ trap cleanup EXIT INT TERM
 for arch in x86_64; do
     temp=$(uuidgen)
     temp_images="$temp_images $temp"
-    time docker build -f Dockerfile.cross --build-arg BASE=mstorsjo/llvm-mingw:dev --build-arg CROSS_ARCH=$arch --build-arg TAG=$TAG-ucrt- --build-arg WITH_PYTHON=1 --build-arg TOOLCHAIN_ARCHS="x86_64" -t $temp .
+    time docker build -f Dockerfile.cross --build-arg BASE=mstorsjo/llvm-mingw:dev --build-arg CROSS_ARCH=$arch --build-arg TAG=$TAG-ucrt- --build-arg WITH_PYTHON=1 --build-arg TOOLCHAIN_ARCHS="x86_64" --build-arg FULL_LLVM=1 --build-arg PYTHON_SUFFIX="-llvm" -t $temp .
     ./extract-docker.sh $temp /llvm-mingw-$TAG-ucrt-$arch.zip
 done
 
