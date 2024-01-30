@@ -94,6 +94,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     exec_argv[arg++] = _T("-unwindlib=libunwind");
     exec_argv[arg++] = _T("-stdlib=libc++");
     exec_argv[arg++] = _T("-fuse-ld=lld");
+    exec_argv[arg++] = _T("-gcodeview");
     exec_argv[arg++] = _T("--end-no-unused-arguments");
 
     for (int i = 1; i < argc; i++)

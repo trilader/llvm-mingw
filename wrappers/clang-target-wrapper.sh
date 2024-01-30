@@ -111,6 +111,7 @@ FLAGS="$FLAGS -rtlib=compiler-rt"
 FLAGS="$FLAGS -unwindlib=libunwind"
 FLAGS="$FLAGS -stdlib=libc++"
 FLAGS="$FLAGS -fuse-ld=lld"
+FLAGS="$FLAGS -gcodeview"
 FLAGS="$FLAGS --end-no-unused-arguments"
 
 $CCACHE "$CLANG" $FLAGS "$@" $LINKER_FLAGS
