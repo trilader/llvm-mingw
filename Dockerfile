@@ -14,7 +14,7 @@ RUN git config --global user.name "LLVM MinGW" && \
 
 WORKDIR /build
 
-ENV TOOLCHAIN_PREFIX=/opt/llvm-mingw
+ENV TOOLCHAIN_PREFIX=/opt/llvm-mingw LLVM_VERSION=llvmorg-17.0.6 DEFAULT_WIN32_WINNT=0x0A00 MINGW_W64_VERSION=1415ff7f9b835e9ea39864c9625ec6fb72682918
 
 ARG TOOLCHAIN_ARCHS="i686 x86_64 armv7 aarch64"
 
